@@ -99,7 +99,6 @@ class TokenObtainView(GenericAPIView):
             status=status.HTTP_400_BAD_REQUEST)
 
 
-
 class ReviewViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all()
     serializer_class = ReviewSerializer
@@ -109,7 +108,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
     def get_title(self):
         title = get_object_or_404(Title, id=self.kwargs['title_id'])
         return title
-    
+
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
@@ -131,11 +130,10 @@ class CommentViewSet(viewsets.ModelViewSet):
         serializer.save(author=self.request.user)
 
 
-
 class ListCreateDeleteViewSet(mixins.ListModelMixin,
-                        mixins.CreateModelMixin,
-                        mixins.DestroyModelMixin,
-                        viewsets.GenericViewSet):
+                              mixins.CreateModelMixin,
+                              mixins.DestroyModelMixin,
+                              viewsets.GenericViewSet):
     """
     A viewset that provides `list`, `create' and 'delete' and actions.
 
