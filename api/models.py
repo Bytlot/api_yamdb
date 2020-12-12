@@ -45,26 +45,12 @@ class Review(models.Model):
         return self.text
 
 
-class Comment(models.Model):
-    author = models.ForeignKey(User, on_delete=models.CASCADE,
-                               related_name='comments')
-    title = models.ForeignKey(Review, on_delete=models.CASCADE,
-                             related_name='comments')
-    text = models.TextField()
-    pub_date = models.DateTimeField('Дата добавления',
-                                   auto_now_add=True,
-                                   db_index=True)
-
-    def __str__(self):
-        return self.text
-
-
 class Categories(models.Model):
     name = models.CharField(max_length=100)
     slug = models.SlugField(max_length=30, unique=True)
-    
-    def __str__(self): 
-       return self.name
+
+    def __str__(self):
+        return self.name
 
 
 class Titles(models.Model):
@@ -78,9 +64,10 @@ class Titles(models.Model):
     category = models.ForeignKey(
         Categories, on_delete=models.SET_NULL, blank=True, null=True,
         related_name="title"
-    ) 
-    def __str__(self): 
-       return self.name
+    )
+
+    def __str__(self):
+        return self.name
 
 
 class Genres(models.Model):
@@ -91,5 +78,19 @@ class Genres(models.Model):
         related_name="genre"
     )
 
-    def __str__(self): 
-       return self.name
+    def __str__(self):
+        return self.name
+
+
+class Comment(models.Model):
+    author = models.ForeignKey(User, on_delete=models.CASCADE,
+                               related_name='comments')
+    title = models.ForeignKey(Review, on_delete=models.CASCADE,
+                              related_name='comments')
+    text = models.TextField()
+    pub_date = models.DateTimeField('Дата добавления',
+                                    auto_now_add=True,
+                                    db_index=True)
+
+    def __str__(self):
+        return self.text
