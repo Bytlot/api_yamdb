@@ -5,7 +5,7 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from django.conf import settings
 from django.core.mail import send_mail
-from rest_framework import status, viewsets
+from rest_framework import status, viewsets, filters, mixins
 from rest_framework.permissions import (
     IsAuthenticated, IsAdminUser, AllowAny)
 from rest_framework.generics import GenericAPIView
@@ -16,7 +16,12 @@ from api.serializers import (
     UsersSerializer, ProfileSerializer,
     ReviewSerializer, CommentSerializer)
 from rest_framework.pagination import PageNumberPagination
+from django_filters.rest_framework import DjangoFilterBackend
 
+
+from . import serializers
+from .models import Categories, Genres, Titles
+from .permissions import IsAuthorOrReadOnly
 
 class UsersViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -124,3 +129,33 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
+
+
+
+class ListCreateDeleteViewSet(mixins.ListModelMixin,
+                        mixins.CreateModelMixin,
+                        mixins.DestroyModelMixin,
+                        viewsets.GenericViewSet):
+    """
+    A viewset that provides `list`, `create' and 'delete' and actions.
+
+    """
+    pass
+
+
+class CategoriesViewSet(ListCreateDeleteViewSet):
+    queryset = Categories.objects.all()
+    serializer_class = serializers.CategoriesSerializer
+    permission_classes = [IsAuthorOrReadOnly]
+
+
+class GenresViewSet(ListCreateDeleteViewSet):
+    queryset = Genres.objects.all()
+    serializer_class = serializers.GenresSerializer
+    permission_classes = [IsAuthorOrReadOnly]
+
+
+class TitlesViewSet(ListCreateDeleteViewSet):
+    queryset = Titles.objects.all()
+    serializer_class = serializers.TitlesSerializer
+    permission_classes = [IsAuthorOrReadOnly]
