@@ -10,18 +10,17 @@ from rest_framework.permissions import (
     IsAuthenticated, IsAdminUser, AllowAny)
 from rest_framework.generics import GenericAPIView
 from rest_framework_simplejwt.serializers import RefreshToken
-from api.models import User, Reviews, Comment
+from api.models import User, Reviews, Comment, Categories, Genres, Titles
 from api.serializers import (
     EmailRegistrationSerializer, TokenObtainSerializer,
     UsersSerializer, ProfileSerializer,
     ReviewSerializer, CommentSerializer)
 from rest_framework.pagination import PageNumberPagination
 from django_filters.rest_framework import DjangoFilterBackend
-
+from .permissions import IsAuthorOrReadOnly
 
 from . import serializers
-from .models import Categories, Genres, Titles
-from .permissions import IsAuthorOrReadOnly
+
 
 class UsersViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()

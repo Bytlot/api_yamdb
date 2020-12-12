@@ -1,7 +1,6 @@
 from rest_framework import serializers
-from api.models import User, Categories, Genres, Titles
+from api.models import User, Categories, Genres, Titles, Comment, Review
 from rest_framework.validators import UniqueValidator
-from .models import Comment, Review
 
 
 class UsersSerializer(serializers.ModelSerializer):
