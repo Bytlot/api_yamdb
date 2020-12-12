@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.db.models.aggregates import Avg
 
 
 class User(AbstractUser):
@@ -29,15 +30,14 @@ class Categories(models.Model):
 class Titles(models.Model):
     name = models.CharField(max_length=100)
     year = models.PositiveIntegerField()
-    # rating = models.ForeignKey(
-    #     Ratings, on_delete=models.SET_NULL, blank=True, null=True,
-    #     related_name="title"
-    # )
     description = models.TextField()
     category = models.ForeignKey(
         Categories, on_delete=models.SET_NULL, blank=True, null=True,
-        related_name="title"
+        related_name='title'
     )
+
+    def get_rating(self):
+        return Review.objects.filter(title=self).aggregate(Avg('score'))
 
     def __str__(self):
         return self.name
@@ -48,7 +48,7 @@ class Genres(models.Model):
     slug = models.SlugField(max_length=30, unique=True)
     title = models.ForeignKey(
         Titles, on_delete=models.SET_NULL, blank=True, null=True,
-        related_name="genre"
+        related_name='genre'
     )
 
     def __str__(self):

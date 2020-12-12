@@ -17,7 +17,7 @@ from api.serializers import (
     ReviewSerializer, CommentSerializer)
 from rest_framework.pagination import PageNumberPagination
 from django_filters.rest_framework import DjangoFilterBackend
-from .permissions import IsAuthorOrReadOnly, IsAuthorAdminModeratorOrReadOnly
+from .permissions import IsAdminOrReadOnly, IsAuthorAdminModeratorOrReadOnly
 
 from . import serializers
 
@@ -112,19 +112,19 @@ class ListCreateDeleteViewSet(mixins.ListModelMixin,
 class CategoriesViewSet(ListCreateDeleteViewSet):
     queryset = Categories.objects.all()
     serializer_class = serializers.CategoriesSerializer
-    permission_classes = [IsAuthorOrReadOnly]
+    permission_classes = [IsAdminOrReadOnly]
 
 
 class GenresViewSet(ListCreateDeleteViewSet):
     queryset = Genres.objects.all()
     serializer_class = serializers.GenresSerializer
-    permission_classes = [IsAuthorOrReadOnly]
+    permission_classes = [IsAdminOrReadOnly]
 
 
-class TitlesViewSet(ListCreateDeleteViewSet):
+class TitlesViewSet(viewsets.ModelViewSet):
     queryset = Titles.objects.all()
     serializer_class = serializers.TitlesSerializer
-    permission_classes = [IsAuthorOrReadOnly]
+    permission_classes = [IsAdminOrReadOnly]
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer

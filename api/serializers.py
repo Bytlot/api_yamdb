@@ -1,3 +1,4 @@
+from django.db.models.aggregates import Avg
 from rest_framework import serializers
 from api.models import User, Categories, Genres, Titles, Comment, Review
 from rest_framework.validators import UniqueValidator
@@ -77,11 +78,24 @@ class GenresSerializer(serializers.ModelSerializer):
         model = Genres
 
 
+class ReviewSerializer(serializers.ModelSerializer):
+    author = serializers.SlugRelatedField(slug_field='username',
+                                        read_only=True)
+
+    def validate(self, data):
+        user = self.context['request'].user
+        title = self.context['request'].parser_context['kwargs']['title_id']
+        if Review.objects.filter(author=user, title_id=title).exists():
+            raise serializers.ValidationError('Оценка поставлена')
+        return data
+
+    class Meta:
+        fields = ( 'id', 'author', 'text', 'pub_date', 'score')
+        model = Review
+
+
 class TitlesSerializer(serializers.ModelSerializer):
-    rating = serializers.SlugRelatedField(
-        slug_field='rating',
-        read_only=True
-    )
+    rating = ReviewSerializer(read_only=True, source='get_rating')
     genre = serializers.SlugRelatedField(
         many=True,
         read_only=True,
@@ -103,22 +117,6 @@ class TitlesSerializer(serializers.ModelSerializer):
             'category'
         )
         model = Titles
-
-
-class ReviewSerializer(serializers.ModelSerializer):
-    author = serializers.SlugRelatedField(slug_field='username',
-                                        read_only=True)
-
-    def validate(self, data):
-        user = self.context['request'].user
-        title = self.context['request'].parser_context['kwargs']['title_id']
-        if Review.objects.filter(author=user, title_id=title).exists():
-            raise serializers.ValidationError('Оценка поставлена')
-        return data
-
-    class Meta:
-        fields = ( 'id', 'author', 'text', 'pub_date', 'score')
-        model = Review
 
 
 class CommentSerializer(serializers.ModelSerializer):
