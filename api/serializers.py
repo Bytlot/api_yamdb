@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from api.models import User
 from rest_framework.validators import UniqueValidator
+from .models import Comment, Review
 
 
 class UsersSerializer(serializers.ModelSerializer):
@@ -61,3 +62,21 @@ class TokenObtainSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('email', 'confirmation_code')
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    author = serializers.SlugRelatedField(slug_field='username',
+                                        read_only=True)
+
+    class Meta:
+        fields = ('author', 'text', 'pub_date', 'score', 'id')
+        model = Review
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    author = serializers.SlugRelatedField(read_only=True,
+                                          slug_field='username')
+
+    class Meta:
+        fields = '__all__'
+        model = Comment

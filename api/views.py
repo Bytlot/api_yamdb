@@ -10,10 +10,12 @@ from rest_framework.permissions import (
     IsAuthenticated, IsAdminUser, AllowAny)
 from rest_framework.generics import GenericAPIView
 from rest_framework_simplejwt.serializers import RefreshToken
-from api.models import User
+from api.models import User, Reviews, Comment
 from api.serializers import (
     EmailRegistrationSerializer, TokenObtainSerializer,
-    UsersSerializer, ProfileSerializer)
+    UsersSerializer, ProfileSerializer,
+    ReviewSerializer, CommentSerializer)
+from rest_framework.pagination import PageNumberPagination
 
 
 class UsersViewSet(viewsets.ModelViewSet):
@@ -90,3 +92,35 @@ class TokenObtainView(GenericAPIView):
             data={'message': ' wrong or already used confirmation_code, '
                              'check your mail for a new confirmation_code'},
             status=status.HTTP_400_BAD_REQUEST)
+
+
+
+class ReviewViewSet(viewsets.ModelViewSet):
+    queryset = Title.objects.all()
+    serializer_class = ReviewSerializer
+    permission_classes = [IsAuthorOrReadOnly, permissions.IsAuthenticatedOrReadOnly]
+    pagination_class = PageNumberPagination 
+
+    def get_title(self):
+        title = get_object_or_404(Title, id=self.kwargs['title_id'])
+        return title
+    
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+
+
+class CommentViewSet(viewsets.ModelViewSet):
+    serializer_class = CommentSerializer
+    permission_classes = [IsAuthorOrReadOnly, permissions.IsAuthenticated]
+    pagination_class = PageNumberPagination 
+
+    def get_review(self):
+        post = get_object_or_404(Review, id=self.kwargs['rewiew_id'])
+        return post
+
+    def get_queryset(self):
+        queryset = Comment.objects.filter(title=self.get_review())
+        return queryset
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)

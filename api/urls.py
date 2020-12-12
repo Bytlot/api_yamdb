@@ -1,11 +1,15 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from api.views import (
-    EmailRegistrationView, TokenObtainView, UsersViewSet)
+    EmailRegistrationView, TokenObtainView, UsersViewSet,
+    ReviewViewSet, CommentViewSet)
 
 router = DefaultRouter()
 router.register(r'users', UsersViewSet, basename='Users')
-
+router.register('titles/(?P<titles_id>.+)/reviews', ReviewViewSet,
+                basename='reviews-list')
+router.register('titles/(?P<titles_id>.+)/reviews/(?P<reviews_id>.+)/comment',
+                CommentViewSet, basename='comments-list')
 
 auth_urlpatterns = [
     path('email/', EmailRegistrationView.as_view()),
