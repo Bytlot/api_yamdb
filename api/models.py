@@ -18,33 +18,6 @@ class User(AbstractUser):
         return self.role == self.Roles.ADMIN
 
 
-class Review(models.Model):
-    SCORE_CHOICES = (
-        (1, 'Ужасно'),
-        (2, 'Очень плохо'),
-        (3, 'Плохо'),
-        (4, 'Ниже среднего'),
-        (5, 'Средне'),
-        (6, 'Выше среднего'),
-        (7, 'Выше превыше среднего'),
-        (8, 'Хорошо'),
-        (9, 'Очень хорошо'),
-        (10, 'Прекрасно')
-    )
-
-    author = models.ForeignKey(User, on_delete=models.CASCADE,
-                               related_name='reviews')
-    title = models.ForeignKey(Title, on_delete=models.CASCADE,
-                               related_name='reviews')
-    text = models.TextField()
-    pub_date = models.DateTimeField('Дата отзыва',
-                                    auto_now_add=True)   
-    score = models.PositiveSmallIntegerField(choices=SCORE_CHOICES)
-
-    def __str__(self):
-        return self.text
-
-
 class Categories(models.Model):
     name = models.CharField(max_length=100)
     slug = models.SlugField(max_length=30, unique=True)
@@ -56,10 +29,10 @@ class Categories(models.Model):
 class Titles(models.Model):
     name = models.CharField(max_length=100)
     year = models.PositiveIntegerField()
-    rating = models.ForeignKey(
-        Ratings, on_delete=models.SET_NULL, blank=True, null=True,
-        related_name="title"
-    )
+    # rating = models.ForeignKey(
+    #     Ratings, on_delete=models.SET_NULL, blank=True, null=True,
+    #     related_name="title"
+    # )
     description = models.TextField()
     category = models.ForeignKey(
         Categories, on_delete=models.SET_NULL, blank=True, null=True,
@@ -80,6 +53,33 @@ class Genres(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Review(models.Model):
+    SCORE_CHOICES = (
+        (1, 'Ужасно'),
+        (2, 'Очень плохо'),
+        (3, 'Плохо'),
+        (4, 'Ниже среднего'),
+        (5, 'Средне'),
+        (6, 'Выше среднего'),
+        (7, 'Выше превыше среднего'),
+        (8, 'Хорошо'),
+        (9, 'Очень хорошо'),
+        (10, 'Прекрасно')
+    )
+
+    author = models.ForeignKey(User, on_delete=models.CASCADE,
+                               related_name='reviews')
+    title = models.ForeignKey(Titles, on_delete=models.CASCADE,
+                               related_name='reviews')
+    text = models.TextField()
+    pub_date = models.DateTimeField('Дата отзыва',
+                                    auto_now_add=True)   
+    score = models.PositiveSmallIntegerField(choices=SCORE_CHOICES)
+
+    def __str__(self):
+        return self.text
 
 
 class Comment(models.Model):

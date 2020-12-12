@@ -10,14 +10,14 @@ from rest_framework.permissions import (
     IsAuthenticated, IsAdminUser, AllowAny)
 from rest_framework.generics import GenericAPIView
 from rest_framework_simplejwt.serializers import RefreshToken
-from api.models import User, Reviews, Comment, Categories, Genres, Titles
+from api.models import User, Review, Comment, Categories, Genres, Titles
 from api.serializers import (
     EmailRegistrationSerializer, TokenObtainSerializer,
     UsersSerializer, ProfileSerializer,
     ReviewSerializer, CommentSerializer)
 from rest_framework.pagination import PageNumberPagination
 from django_filters.rest_framework import DjangoFilterBackend
-from .permissions import IsAuthorOrReadOnly
+from .permissions import IsAuthorOrReadOnly, IsAuthorAdminModeratorOrReadOnly
 
 from . import serializers
 
@@ -98,37 +98,6 @@ class TokenObtainView(GenericAPIView):
             status=status.HTTP_400_BAD_REQUEST)
 
 
-class ReviewViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all()
-    serializer_class = ReviewSerializer
-    permission_classes = [IsAuthorOrReadOnly, permissions.IsAuthenticatedOrReadOnly]
-    pagination_class = PageNumberPagination 
-
-    def get_title(self):
-        title = get_object_or_404(Title, id=self.kwargs['title_id'])
-        return title
-
-    def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
-
-
-class CommentViewSet(viewsets.ModelViewSet):
-    serializer_class = CommentSerializer
-    permission_classes = [IsAuthorOrReadOnly, permissions.IsAuthenticated]
-    pagination_class = PageNumberPagination 
-
-    def get_review(self):
-        post = get_object_or_404(Review, id=self.kwargs['rewiew_id'])
-        return post
-
-    def get_queryset(self):
-        queryset = Comment.objects.filter(title=self.get_review())
-        return queryset
-
-    def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
-
-
 class ListCreateDeleteViewSet(mixins.ListModelMixin,
                               mixins.CreateModelMixin,
                               mixins.DestroyModelMixin,
@@ -156,3 +125,32 @@ class TitlesViewSet(ListCreateDeleteViewSet):
     queryset = Titles.objects.all()
     serializer_class = serializers.TitlesSerializer
     permission_classes = [IsAuthorOrReadOnly]
+
+class ReviewViewSet(viewsets.ModelViewSet):
+    serializer_class = ReviewSerializer
+    permission_classes = [IsAuthorAdminModeratorOrReadOnly]
+    pagination_class = PageNumberPagination 
+
+    def get_queryset(self):
+        title = get_object_or_404(Titles, id=self.kwargs['title_id'])
+        queryset = Review.objects.filter(title=title)
+        return queryset
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+
+
+class CommentViewSet(viewsets.ModelViewSet):
+    serializer_class = CommentSerializer
+    permission_classes = [IsAuthorAdminModeratorOrReadOnly]
+    pagination_class = PageNumberPagination
+
+    def get_queryset(self):
+        review = get_object_or_404(Review,
+                                   id=self.kwargs['review_id'],
+                                   title__id=self.kwargs['title_id'])
+        queryset = Comment.objects.filter(review=review)
+        return queryset
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)

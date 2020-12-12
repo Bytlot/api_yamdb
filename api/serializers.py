@@ -63,24 +63,6 @@ class TokenObtainSerializer(serializers.ModelSerializer):
         fields = ('email', 'confirmation_code')
 
 
-class ReviewSerializer(serializers.ModelSerializer):
-    author = serializers.SlugRelatedField(slug_field='username',
-                                        read_only=True)
-
-    class Meta:
-        fields = ('author', 'text', 'pub_date', 'score', 'id')
-        model = Review
-
-
-class CommentSerializer(serializers.ModelSerializer):
-    author = serializers.SlugRelatedField(read_only=True,
-                                          slug_field='username')
-
-    class Meta:
-        fields = '__all__'
-        model = Comment
-
-
 class CategoriesSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -104,8 +86,7 @@ class TitlesSerializer(serializers.ModelSerializer):
         many=True,
         read_only=True,
         slug_field='name',
-        queryset=Genres.objects.all()
-    )
+        )
     category = serializers.SlugRelatedField(
         read_only=True,
         slug_field='name'
@@ -122,3 +103,28 @@ class TitlesSerializer(serializers.ModelSerializer):
             'category'
         )
         model = Titles
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    author = serializers.SlugRelatedField(slug_field='username',
+                                        read_only=True)
+
+    def validate(self, data):
+        user = self.context['request'].user
+        title = self.context['request'].parser_context['kwargs']['title_id']
+        if Review.objects.filter(author=user, title_id=title).exists():
+            raise serializers.ValidationError('Оценка поставлена')
+        return data
+
+    class Meta:
+        fields = ( 'id', 'author', 'text', 'pub_date', 'score')
+        model = Review
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    author = serializers.SlugRelatedField(read_only=True,
+                                          slug_field='username')
+
+    class Meta:
+        fields = '__all__'
+        model = Comment
