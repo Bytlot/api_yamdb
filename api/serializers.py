@@ -80,7 +80,7 @@ class GenresSerializer(serializers.ModelSerializer):
 
 class ReviewSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(slug_field='username',
-                                        read_only=True)
+                                          read_only=True)
 
     def validate(self, data):
         user = self.context['request'].user
@@ -90,7 +90,7 @@ class ReviewSerializer(serializers.ModelSerializer):
         return data
 
     class Meta:
-        fields = ( 'id', 'author', 'text', 'pub_date', 'score')
+        fields = ('id', 'author', 'text', 'pub_date', 'score')
         model = Review
 
 
