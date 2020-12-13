@@ -1,6 +1,7 @@
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.datetime_safe import datetime
 from rest_framework.decorators import action
+from rest_framework.filters import SearchFilter
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from django.conf import settings
@@ -112,12 +113,16 @@ class CategoriesViewSet(ListCreateDeleteViewSet):
     queryset = Categories.objects.all()
     serializer_class = serializers.CategoriesSerializer
     permission_classes = [IsAdminOrReadOnly]
+    filter_backends = [SearchFilter]
+    search_fields = ['name']
 
 
 class GenresViewSet(ListCreateDeleteViewSet):
     queryset = Genres.objects.all()
     serializer_class = serializers.GenresSerializer
     permission_classes = [IsAdminOrReadOnly]
+    filter_backends = [SearchFilter]
+    search_fields = ['name']
 
 
 class TitlesViewSet(viewsets.ModelViewSet):
