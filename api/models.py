@@ -19,6 +19,14 @@ class User(AbstractUser):
         return self.role == self.Roles.ADMIN
 
 
+class Genres(models.Model):
+    name = models.CharField(max_length=100)
+    slug = models.SlugField(max_length=30, unique=True)
+
+    def __str__(self):
+        return self.name
+
+
 class Categories(models.Model):
     name = models.CharField(max_length=100)
     slug = models.SlugField(max_length=30, unique=True)
@@ -31,6 +39,7 @@ class Titles(models.Model):
     name = models.CharField(max_length=100)
     year = models.PositiveIntegerField()
     description = models.TextField()
+    genre = models.ManyToManyField(Genres)
     category = models.ForeignKey(
         Categories, on_delete=models.SET_NULL, blank=True, null=True,
         related_name='title'
@@ -38,18 +47,6 @@ class Titles(models.Model):
 
     def get_rating(self):
         return Review.objects.filter(title=self).aggregate(Avg('score'))
-
-    def __str__(self):
-        return self.name
-
-
-class Genres(models.Model):
-    name = models.CharField(max_length=100)
-    slug = models.SlugField(max_length=30, unique=True)
-    title = models.ForeignKey(
-        Titles, on_delete=models.SET_NULL, blank=True, null=True,
-        related_name='genre'
-    )
 
     def __str__(self):
         return self.name
