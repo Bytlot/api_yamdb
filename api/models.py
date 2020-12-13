@@ -75,7 +75,7 @@ class Review(models.Model):
                                related_name='reviews')
     text = models.TextField()
     pub_date = models.DateTimeField('Дата отзыва',
-                                    auto_now_add=True)   
+                                    auto_now_add=True)
     score = models.PositiveSmallIntegerField(choices=SCORE_CHOICES)
 
     def __str__(self):
