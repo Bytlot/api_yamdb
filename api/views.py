@@ -115,6 +115,7 @@ class CategoriesViewSet(ListCreateDeleteViewSet):
     permission_classes = [IsAdminOrReadOnly]
     filter_backends = [SearchFilter]
     search_fields = ['name']
+    lookup_field = "slug"
 
 
 class GenresViewSet(ListCreateDeleteViewSet):
@@ -123,6 +124,7 @@ class GenresViewSet(ListCreateDeleteViewSet):
     permission_classes = [IsAdminOrReadOnly]
     filter_backends = [SearchFilter]
     search_fields = ['name']
+    lookup_field = "slug"
 
 
 class TitlesViewSet(viewsets.ModelViewSet):
@@ -159,4 +161,3 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
-
