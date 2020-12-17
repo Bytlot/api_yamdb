@@ -67,7 +67,7 @@ class Review(models.Model):
         validators=[
             MinValueValidator(1),
             MaxValueValidator(10)
-],
+        ],
     )
 
     def __str__(self):
