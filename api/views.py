@@ -18,7 +18,7 @@ from api.serializers import (
     ReviewSerializer, CommentSerializer)
 from rest_framework.pagination import PageNumberPagination
 from .permissions import IsAdminOrReadOnly, IsAuthorAdminModeratorOrReadOnly
-
+from .filters import CustomFilterBackend
 from . import serializers
 
 
@@ -130,7 +130,11 @@ class GenresViewSet(ListCreateDeleteViewSet):
 class TitlesViewSet(viewsets.ModelViewSet):
     queryset = Titles.objects.all()
     serializer_class = serializers.TitlesSerializer
+    pagination_class = PageNumberPagination
     permission_classes = [IsAdminOrReadOnly]
+    filter_backends = [CustomFilterBackend]
+    filterset_fields = ["category", "genre", "year", "name"]
+    
 
 
 class ReviewViewSet(viewsets.ModelViewSet):

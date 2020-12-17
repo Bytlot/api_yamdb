@@ -103,26 +103,21 @@ class CommentSerializer(serializers.ModelSerializer):
         model = Comment
 
 
+class CustomSlugRelatedField(serializers.SlugRelatedField):
+    def to_representation(self, value):
+        return {"name": value.name, "slug": value.slug}
+
+
 class TitlesSerializer(serializers.ModelSerializer):
-    # rating = ReviewSerializer(read_only=True, source='get_rating')
-    genre = serializers.SlugRelatedField(
-        many=True,
-        read_only=True,
-        slug_field='name',
-        )
-    category = serializers.SlugRelatedField(
-        read_only=True,
-        slug_field='name'
+    rating = serializers.ReadOnlyField()
+    category = CustomSlugRelatedField(
+        queryset=Categories.objects.all(), slug_field="slug"
+    )
+    genre = CustomSlugRelatedField(
+        queryset=Genres.objects.all(), slug_field="slug", many=True
     )
 
     class Meta:
-        fields = (
-            'id',
-            'name',
-            'year',
-            'rating',
-            'description',
-            'genre',
-            'category'
-        )
+        fields = ("id", "name", "year", "rating",
+                  "description", "genre", "category")
         model = Titles
