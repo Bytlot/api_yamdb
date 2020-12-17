@@ -40,14 +40,20 @@ class Titles(models.Model):
     name = models.CharField(max_length=100)
     year = models.PositiveIntegerField()
     description = models.TextField()
-    genre = models.ManyToManyField(Genres)
+    genre = models.ManyToManyField(
+        Genres, 
+        related_name="titles", 
+        blank=True
+    )
     category = models.ForeignKey(
-        Categories, on_delete=models.SET_NULL, blank=True, null=True,
-        related_name='title'
+        Categories, on_delete=models.SET_NULL, blank=True, null=True
     )
 
-    def get_rating(self):
-        return Review.objects.filter(title=self).aggregate(Avg('score'))
+    @property
+    def rating(self):
+        avg_score = Review.objects.filter(title=self).aggregate(rating=Avg('score'))
+        rating = avg_score['rating']
+        return rating
 
     def __str__(self):
         return self.name
