@@ -9,7 +9,7 @@ router = DefaultRouter()
 router.register(r'users', UsersViewSet, basename='Users')
 router.register('titles/(?P<titles_id>.+)/reviews', ReviewViewSet,
                 basename='reviews-list')
-router.register('titles/(?P<titles_id>.+)/reviews/(?P<reviews_id>.+)/comment',
+router.register('titles/(?P<titles_id>.+)/reviews/(?P<reviews_id>.+)/comments',
                 CommentViewSet, basename='comments-list')
 router.register('titles', TitlesViewSet, basename='titles')
 router.register('categories', CategoriesViewSet, basename='categories')
