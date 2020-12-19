@@ -11,7 +11,7 @@ from rest_framework.permissions import (
     IsAuthenticated, IsAdminUser, AllowAny, IsAuthenticatedOrReadOnly)
 from rest_framework.generics import GenericAPIView
 from rest_framework_simplejwt.serializers import RefreshToken
-from api.models import User, Review, Comment, Categories, Genres, Titles
+from api.models import User, Review, Categories, Genres, Titles
 from api.serializers import (
     EmailRegistrationSerializer, TokenObtainSerializer,
     UsersSerializer, ProfileSerializer,
@@ -134,12 +134,12 @@ class TitlesViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAdminOrReadOnly]
     filter_backends = [CustomFilterBackend]
     filterset_fields = ["category", "genre", "year", "name"]
-    
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
-    permission_classes = [IsAuthorAdminModeratorOrReadOnly, IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthorAdminModeratorOrReadOnly,
+                          IsAuthenticatedOrReadOnly]
     pagination_class = PageNumberPagination
 
     def get_queryset(self):
@@ -154,7 +154,8 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
-    permission_classes = [IsAuthorAdminModeratorOrReadOnly, IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthorAdminModeratorOrReadOnly,
+                          IsAuthenticatedOrReadOnly]
     pagination_class = PageNumberPagination
 
     def get_queryset(self):
@@ -167,4 +168,4 @@ class CommentViewSet(viewsets.ModelViewSet):
         review = get_object_or_404(
             Review, id=self.kwargs['reviews_id'],
             title__id=self.kwargs['titles_id'])
-        serializer.save(author=self.request.user, review=review)    
+        serializer.save(author=self.request.user, review=review)

@@ -1,4 +1,3 @@
-from django.db.models.aggregates import Avg
 from rest_framework import serializers
 from api.models import User, Categories, Genres, Titles, Comment, Review
 from rest_framework.validators import UniqueValidator
@@ -98,7 +97,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 class CommentSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(read_only=True,
                                           slug_field='username')
-    
+
     class Meta:
         fields = ('id', 'author', 'text', 'pub_date')
         model = Comment
