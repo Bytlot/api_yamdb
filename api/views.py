@@ -157,15 +157,14 @@ class CommentViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthorAdminModeratorOrReadOnly, IsAuthenticatedOrReadOnly]
     pagination_class = PageNumberPagination
 
-    def get_review(self):
-        review = get_object_or_404(Review, id=self.kwargs.get("reviews_id"))
-        return review
-    
     def get_queryset(self):
-        queryset = Comment.objects.filter(review=self.get_review()).all()
-        return queryset
-    
+        review = get_object_or_404(
+            Review, id=self.kwargs['reviews_id'],
+            title__id=self.kwargs['titles_id'])
+        return review.comments.all()
+
     def perform_create(self, serializer):
-        review_id = self.kwargs.get("reviews_id")
-        get_object_or_404(Review, pk=review_id)
-        serializer.save(author=self.request.user, reviews_id=review_id)   
+        review = get_object_or_404(
+            Review, id=self.kwargs['reviews_id'],
+            title__id=self.kwargs['titles_id'])
+        serializer.save(author=self.request.user, review=review)    
