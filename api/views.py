@@ -10,7 +10,6 @@ from rest_framework import status, viewsets, mixins
 from rest_framework.permissions import (
     IsAuthenticated, IsAdminUser, AllowAny, IsAuthenticatedOrReadOnly)
 from rest_framework.generics import GenericAPIView
-from rest_framework_simplejwt.serializers import RefreshToken
 from api.models import User, Review, Categories, Genres, Titles
 from api.serializers import (
     EmailRegistrationSerializer, TokenObtainSerializer,
@@ -55,8 +54,6 @@ class EmailRegistrationView(GenericAPIView):
         user = User.objects.create(
             username=email, email=email, last_login=datetime.now())
         confirmation_code = default_token_generator.make_token(user)
-        user.set_password(confirmation_code)
-        user.save()
         subject = 'Registration by e-mail'
         from_email = settings.EMAIL_HOST_USER
         to_email = [email]
@@ -76,26 +73,18 @@ class TokenObtainView(GenericAPIView):
         email = serializer.validated_data['email']
         user = get_object_or_404(User, email=email)
         confirmation_code = serializer.validated_data['confirmation_code']
-        if user.check_password(confirmation_code):
-            token = RefreshToken.for_user(user=user)
-            user.set_password(None)
-            user.save()
+        if not default_token_generator.check_token(user, confirmation_code):
             return Response(
-                {'refresh': str(token), 'access': str(token.access_token)})
+                data={'message': ' wrong or already used confirmation_code, '
+                                 'check your mail for a new confirmation_code'}, # noqa
+                status=status.HTTP_400_BAD_REQUEST)
         confirmation_code = default_token_generator.make_token(user)
-        user.set_password(confirmation_code)
-        user.save()
         subject = 'a new confirmation_code'
         from_email = settings.EMAIL_HOST_USER
         to_email = [email]
         message_email = 'confirmation_code %s' % confirmation_code
         send_mail(subject, message_email, from_email, to_email,
                   fail_silently=True)
-
-        return Response(
-            data={'message': ' wrong or already used confirmation_code, '
-                             'check your mail for a new confirmation_code'},
-            status=status.HTTP_400_BAD_REQUEST)
 
 
 class ListCreateDeleteViewSet(mixins.ListModelMixin,

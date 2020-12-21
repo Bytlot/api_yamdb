@@ -41,8 +41,8 @@ class Titles(models.Model):
     year = models.PositiveIntegerField()
     description = models.TextField()
     genre = models.ManyToManyField(
-        Genres, 
-        related_name="titles", 
+        Genres,
+        related_name="titles",
         blank=True
     )
     category = models.ForeignKey(
@@ -51,7 +51,7 @@ class Titles(models.Model):
 
     @property
     def rating(self):
-        avg_score = Review.objects.filter(title=self).aggregate(rating=Avg('score'))
+        avg_score = Review.objects.filter(title=self).aggregate(rating=Avg('score')) # noqa
         rating = avg_score['rating']
         return rating
 
@@ -69,9 +69,9 @@ class Review(models.Model):
                                     auto_now_add=True)
     score = models.PositiveSmallIntegerField(
             validators=[
-            MinValueValidator(1),
-            MaxValueValidator(10)
-        ],
+                MinValueValidator(1),
+                MaxValueValidator(10)
+            ],
     )
 
     def __str__(self):
@@ -82,7 +82,7 @@ class Comment(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE,
                                related_name='comments')
     review = models.ForeignKey(Review, on_delete=models.CASCADE,
-                              related_name='comments')
+                               related_name='comments')
     text = models.TextField()
     pub_date = models.DateTimeField('Дата добавления',
                                     auto_now_add=True,
