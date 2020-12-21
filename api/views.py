@@ -1,5 +1,6 @@
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.datetime_safe import datetime
+from rest_framework_simplejwt.tokens import AccessToken
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
 from rest_framework.generics import get_object_or_404
@@ -73,11 +74,9 @@ class TokenObtainView(GenericAPIView):
         email = serializer.validated_data['email']
         user = get_object_or_404(User, email=email)
         confirmation_code = serializer.validated_data['confirmation_code']
-        if not default_token_generator.check_token(user, confirmation_code):
-            return Response(
-                data={'message': ' wrong or already used confirmation_code, '
-                                 'check your mail for a new confirmation_code'}, # noqa
-                status=status.HTTP_400_BAD_REQUEST)
+        if default_token_generator.check_token(user, confirmation_code):
+            token = AccessToken.for_user(user)
+            return Response({'token': f'{token}'}, status=status.HTTP_200_OK)  # не знаю как сделать по другому
         confirmation_code = default_token_generator.make_token(user)
         subject = 'a new confirmation_code'
         from_email = settings.EMAIL_HOST_USER
@@ -85,6 +84,10 @@ class TokenObtainView(GenericAPIView):
         message_email = 'confirmation_code %s' % confirmation_code
         send_mail(subject, message_email, from_email, to_email,
                   fail_silently=True)
+        return Response(
+                data={'message': ' wrong or already used confirmation_code, '
+                                 'check your mail for a new confirmation_code'}, # noqa
+                status=status.HTTP_400_BAD_REQUEST)
 
 
 class ListCreateDeleteViewSet(mixins.ListModelMixin,
