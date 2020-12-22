@@ -76,7 +76,7 @@ class TokenObtainView(GenericAPIView):
         confirmation_code = serializer.validated_data['confirmation_code']
         if default_token_generator.check_token(user, confirmation_code):
             token = AccessToken.for_user(user)
-            return Response({'token': f'{token}'}, status=status.HTTP_200_OK)  # не знаю как сделать по другому
+            return Response({'token': f'{token}'}, status=status.HTTP_200_OK)
         confirmation_code = default_token_generator.make_token(user)
         subject = 'a new confirmation_code'
         from_email = settings.EMAIL_HOST_USER
