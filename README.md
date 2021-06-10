@@ -37,3 +37,7 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 API documentation available at: http://localhost/redoc/
+
+## License
+
+MIT License
